@@ -113,7 +113,7 @@ async def initialize_default_data():
         await conn.run_sync(Base.metadata.create_all)
     
     # Add default data
-    async with get_db_session().__anext__() as session:
+    async with async_session_maker() as session:
         # Check if contacts exist, if not create default
         result = await session.execute(select(ContactsTable))
         existing_contacts = result.scalar_one_or_none()
