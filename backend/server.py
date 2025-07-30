@@ -402,7 +402,7 @@ async def update_portfolio(portfolio_id: str, portfolio_item: PortfolioUpdate, s
     # Update portfolio
     stmt = (
         update(PortfolioTable)
-        .where(PortfolioTable.id == uuid.UUID(portfolio_id))
+        .where(PortfolioTable.id == portfolio_id)
         .values(
             title=portfolio_item.title,
             image=portfolio_item.image,
@@ -419,14 +419,14 @@ async def update_portfolio(portfolio_id: str, portfolio_item: PortfolioUpdate, s
     
     # Fetch updated portfolio
     result = await session.execute(
-        select(PortfolioTable).where(PortfolioTable.id == uuid.UUID(portfolio_id))
+        select(PortfolioTable).where(PortfolioTable.id == portfolio_id)
     )
     updated_portfolio = result.scalar_one()
     return convert_portfolio_to_pydantic(updated_portfolio)
 
 @api_router.delete("/portfolio/{portfolio_id}")
 async def delete_portfolio(portfolio_id: str, session: AsyncSession = Depends(get_db_session)):
-    stmt = delete(PortfolioTable).where(PortfolioTable.id == uuid.UUID(portfolio_id))
+    stmt = delete(PortfolioTable).where(PortfolioTable.id == portfolio_id)
     result = await session.execute(stmt)
     
     if result.rowcount == 0:
