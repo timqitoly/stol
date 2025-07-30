@@ -5,7 +5,7 @@ import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
-import { useToast } from "../hooks/use-toast";
+import { useToast } from "../../hooks/use-toast";
 import { Edit, Save, Trash2, Plus, LogOut, Eye } from 'lucide-react';
 
 const AdminPage = () => {
