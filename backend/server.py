@@ -343,7 +343,7 @@ async def update_service(service_id: str, service: ServiceUpdate, session: Async
     # Update service
     stmt = (
         update(ServiceTable)
-        .where(ServiceTable.id == uuid.UUID(service_id))
+        .where(ServiceTable.id == service_id)
         .values(
             name=service.name,
             description=service.description,
@@ -362,14 +362,14 @@ async def update_service(service_id: str, service: ServiceUpdate, session: Async
     
     # Fetch updated service
     result = await session.execute(
-        select(ServiceTable).where(ServiceTable.id == uuid.UUID(service_id))
+        select(ServiceTable).where(ServiceTable.id == service_id)
     )
     updated_service = result.scalar_one()
     return convert_service_to_pydantic(updated_service)
 
 @api_router.delete("/services/{service_id}")
 async def delete_service(service_id: str, session: AsyncSession = Depends(get_db_session)):
-    stmt = delete(ServiceTable).where(ServiceTable.id == uuid.UUID(service_id))
+    stmt = delete(ServiceTable).where(ServiceTable.id == service_id)
     result = await session.execute(stmt)
     
     if result.rowcount == 0:
