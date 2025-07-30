@@ -78,6 +78,31 @@ export const adminAPI = {
   }
 };
 
+// Images API
+export const imagesAPI = {
+  upload: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await axios.post(`${API_BASE}/upload-image`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+  
+  getAll: async () => {
+    const response = await api.get('/uploaded-images');
+    return response.data;
+  },
+  
+  delete: async (id) => {
+    const response = await api.delete(`/uploaded-images/${id}`);
+    return response.data;
+  }
+};
+
 // Error handler wrapper
 export const handleAPIError = (error) => {
   if (error.response) {
