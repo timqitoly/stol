@@ -8,11 +8,17 @@ load_dotenv()
 # Database configuration
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
+# Check if DATABASE_URL is properly configured
+if not DATABASE_URL or DATABASE_URL == "postgresql+asyncpg://user:password@host:port/database":
+    # Use SQLite for testing when no real DATABASE_URL is provided
+    DATABASE_URL = "sqlite+aiosqlite:///./test_database.db"
+    print("⚠️ Using SQLite for testing - no valid PostgreSQL DATABASE_URL found")
+
 # Create async engine
 engine = create_async_engine(
     DATABASE_URL,
     echo=True,  # Set to False in production
-    pool_size=20,
+    pool_size=20 if DATABASE_URL.startswith("postgresql") else 5,
     max_overflow=0
 )
 
