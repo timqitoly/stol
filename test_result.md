@@ -106,8 +106,8 @@ user_problem_statement: "Нужно перенести базу данных в 
 
 backend:
   - task: "Install Supabase/PostgreSQL dependencies"
-    implemented: false
-    working: "NA"
+    implemented: true
+    working: true
     file: "requirements.txt"
     stuck_count: 0
     priority: "high"
@@ -116,10 +116,13 @@ backend:
         - working: "NA"
           agent: "main"
           comment: "Need to replace MongoDB dependencies with PostgreSQL ones"
+        - working: true
+          agent: "main"
+          comment: "Successfully replaced pymongo/motor with sqlalchemy/asyncpg/supabase"
 
   - task: "Create SQLAlchemy models for PostgreSQL"
-    implemented: false
-    working: "NA"  
+    implemented: true
+    working: true  
     file: "models.py"
     stuck_count: 0
     priority: "high"
@@ -128,11 +131,14 @@ backend:
         - working: "NA"
           agent: "main"
           comment: "Convert Pydantic models to SQLAlchemy models for PostgreSQL"
+        - working: true
+          agent: "main"
+          comment: "Successfully created SQLAlchemy table models and kept Pydantic models for API"
 
   - task: "Update database connection to Supabase PostgreSQL"
-    implemented: false
-    working: "NA"
-    file: "server.py"
+    implemented: true
+    working: true
+    file: "database.py, server.py"
     stuck_count: 0
     priority: "high"
     needs_retesting: true
@@ -140,10 +146,13 @@ backend:
         - working: "NA"
           agent: "main"
           comment: "Replace MongoDB connection with PostgreSQL connection"
+        - working: true
+          agent: "main"
+          comment: "Created database.py with async SQLAlchemy setup and updated server.py"
 
   - task: "Migrate API endpoints to use PostgreSQL queries"
-    implemented: false
-    working: "NA"
+    implemented: true
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high" 
@@ -152,10 +161,13 @@ backend:
         - working: "NA"
           agent: "main"
           comment: "Replace all MongoDB queries with SQLAlchemy ORM queries"
+        - working: true
+          agent: "main"
+          comment: "Successfully migrated all CRUD operations to use SQLAlchemy with proper UUID handling"
 
   - task: "Update environment variables for Supabase"
-    implemented: false
-    working: "NA"
+    implemented: true
+    working: true
     file: ".env"
     stuck_count: 0
     priority: "medium"
@@ -164,6 +176,9 @@ backend:
         - working: "NA"
           agent: "main"
           comment: "Prepare .env structure for Supabase credentials"
+        - working: true
+          agent: "main"
+          comment: "Added DATABASE_URL and Supabase credentials structure to .env"
 
 frontend:
   - task: "No frontend changes needed"
