@@ -14,14 +14,16 @@ IS_POSTGRESQL = DATABASE_URL.startswith("postgresql")
 if IS_POSTGRESQL:
     from sqlalchemy.dialects.postgresql import UUID
     UUID_TYPE = UUID(as_uuid=True)
+    UUID_DEFAULT = uuid.uuid4
 else:
     UUID_TYPE = String(36)
+    UUID_DEFAULT = lambda: str(uuid.uuid4())
 
 # SQLAlchemy Models for PostgreSQL/SQLite
 class ServiceTable(Base):
     __tablename__ = "services"
     
-    id = Column(UUID_TYPE, primary_key=True, default=lambda: str(uuid.uuid4()) if not IS_POSTGRESQL else uuid.uuid4)
+    id = Column(UUID_TYPE, primary_key=True, default=UUID_DEFAULT)
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=False)
     detailed_description = Column(Text, nullable=False)
