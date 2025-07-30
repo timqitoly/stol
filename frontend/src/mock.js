@@ -1,0 +1,110 @@
+// Mock data for Княжий Терем website
+
+export const mockData = {
+  company: {
+    name: "Княжий Терем",
+    tagline: "Мастера чистовой отделки деревом",
+    phone: "+7 (999) 123-45-67",
+    whatsapp: "+79991234567",
+    email: "info@knyazhiy-terem.ru"
+  },
+  
+  about: {
+    title: "О нас",
+    description: "Мы — команда мастеров по чистовой отделке деревом и столярным работам. Работаем вдвоём, со своим инструментом, автомобилем и доставкой. Подготавливаем материалы, делаем чертежи при необходимости, а также даём гарантию на выполненные работы.",
+    features: [
+      "Чистовая отделка деревом",
+      "Столярные услуги", 
+      "Расчёт материалов и доставка",
+      "Создание чертежей",
+      "Гарантийное обслуживание"
+    ]
+  },
+
+  services: [
+    {
+      id: 1,
+      name: "Баня из бруса",
+      description: "Строительство и отделка бань из качественного бруса. Полный цикл работ от фундамента до финишной отделки.",
+      price: "от 500 000 ₽",
+      images: [
+        "https://images.unsplash.com/photo-1571502973714-8c2b0cc0b7ee?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1542078753-9b3ec0a9b6d5?w=400&h=300&fit=crop"
+      ]
+    },
+    {
+      id: 2,
+      name: "Беседка из дерева",
+      description: "Изготовление и установка деревянных беседок. Различные размеры и дизайн под ваши потребности.",
+      price: "от 150 000 ₽",
+      images: [
+        "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=400&h=300&fit=crop"
+      ]
+    },
+    {
+      id: 3,
+      name: "Отделка дома деревом",
+      description: "Внутренняя и внешняя отделка домов натуральным деревом. Работаем с различными породами дерева.",
+      price: "от 2000 ₽/м²",
+      images: [
+        "https://images.unsplash.com/photo-1513594736757-3c44df5db6a9?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1600563438938-a9e2e2a35470?w=400&h=300&fit=crop"
+      ]
+    },
+    {
+      id: 4,
+      name: "Деревянная мебель",
+      description: "Изготовление мебели из дерева на заказ. Столы, стулья, шкафы, кровати и другая мебель.",
+      price: "от 30 000 ₽",
+      images: [
+        "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1542744173-05336fcc7ad4?w=400&h=300&fit=crop"
+      ]
+    }
+  ],
+
+  portfolio: [
+    {
+      id: 1,
+      title: "Русская баня",
+      image: "https://images.unsplash.com/photo-1571502973714-8c2b0cc0b7ee?w=600&h=400&fit=crop",
+      category: "Бани"
+    },
+    {
+      id: 2,
+      title: "Садовая беседка",
+      image: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=600&h=400&fit=crop",
+      category: "Беседки"
+    },
+    {
+      id: 3,
+      title: "Деревянная отделка",
+      image: "https://images.unsplash.com/photo-1513594736757-3c44df5db6a9?w=600&h=400&fit=crop",
+      category: "Отделка"
+    },
+    {
+      id: 4,
+      title: "Кухонный гарнитур",
+      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&h=400&fit=crop",
+      category: "Мебель"
+    },
+    {
+      id: 5,
+      title: "Терраса",
+      image: "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=600&h=400&fit=crop",
+      category: "Террасы"
+    },
+    {
+      id: 6,
+      title: "Деревянный стол",
+      image: "https://images.unsplash.com/photo-1542744173-05336fcc7ad4?w=600&h=400&fit=crop",
+      category: "Мебель"
+    }
+  ]
+};
+
+export const adminData = {
+  login: "admin",
+  password: "admin123"
+};
