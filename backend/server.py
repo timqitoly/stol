@@ -1,4 +1,5 @@
-from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File
+from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -7,13 +8,17 @@ import logging
 from pathlib import Path
 from typing import List
 from datetime import datetime
+import shutil
+import uuid
+from PIL import Image
 
 # Import models
 from models import (
     Service, ServiceCreate, ServiceUpdate,
     Portfolio, PortfolioCreate, PortfolioUpdate,
     Contacts, ContactsUpdate,
-    AdminLogin, AdminResponse
+    AdminLogin, AdminResponse,
+    UploadedImage, ImageUploadResponse
 )
 
 ROOT_DIR = Path(__file__).parent
@@ -24,11 +29,38 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
+# Create uploads directory
+UPLOADS_DIR = ROOT_DIR / "uploads"
+UPLOADS_DIR.mkdir(exist_ok=True)
+
 # Create the main app without a prefix
 app = FastAPI()
 
+# Mount static files for uploaded images
+app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
+
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
+
+# Helper function to resize and optimize images
+async def process_image(file_path: Path, max_width: int = 1200, max_height: int = 800, quality: int = 85):
+    try:
+        with Image.open(file_path) as img:
+            # Convert to RGB if necessary
+            if img.mode in ('RGBA', 'P'):
+                img = img.convert('RGB')
+            
+            # Calculate new dimensions while maintaining aspect ratio
+            ratio = min(max_width / img.width, max_height / img.height)
+            if ratio < 1:
+                new_width = int(img.width * ratio)
+                new_height = int(img.height * ratio)
+                img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            
+            # Save optimized image
+            img.save(file_path, "JPEG", quality=quality, optimize=True)
+    except Exception as e:
+        logging.error(f"Error processing image {file_path}: {e}")
 
 # Initialize default data
 async def initialize_default_data():
@@ -159,6 +191,95 @@ async def initialize_default_data():
             }
         ]
         await db.portfolio.insert_many(default_portfolio)
+
+# Image Upload Endpoints
+@api_router.post("/upload-image", response_model=ImageUploadResponse)
+async def upload_image(file: UploadFile = File(...)):
+    # Validate file type
+    if not file.content_type.startswith("image/"):
+        return ImageUploadResponse(
+            success=False,
+            message="Файл должен быть изображением"
+        )
+    
+    # Validate file size (5MB max)
+    if file.size > 5 * 1024 * 1024:
+        return ImageUploadResponse(
+            success=False,
+            message="Размер файла не должен превышать 5MB"
+        )
+    
+    try:
+        # Generate unique filename
+        file_extension = file.filename.split(".")[-1].lower()
+        unique_filename = f"{uuid.uuid4()}.{file_extension}"
+        file_path = UPLOADS_DIR / unique_filename
+        
+        # Save file
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        # Process image (resize and optimize)
+        await process_image(file_path)
+        
+        # Get file size after processing
+        file_size = file_path.stat().st_size
+        
+        # Create image record
+        base_url = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:8001')
+        image_url = f"{base_url}/uploads/{unique_filename}"
+        
+        image_record = UploadedImage(
+            filename=unique_filename,
+            original_filename=file.filename,
+            url=image_url,
+            size=file_size
+        )
+        
+        # Save to database
+        await db.uploaded_images.insert_one(image_record.dict())
+        
+        return ImageUploadResponse(
+            success=True,
+            message="Изображение успешно загружено",
+            image=image_record
+        )
+        
+    except Exception as e:
+        logging.error(f"Error uploading image: {e}")
+        return ImageUploadResponse(
+            success=False,
+            message=f"Ошибка загрузки: {str(e)}"
+        )
+
+@api_router.get("/uploaded-images", response_model=List[UploadedImage])
+async def get_uploaded_images():
+    images = await db.uploaded_images.find().sort("createdAt", -1).to_list(1000)
+    return [UploadedImage(**image) for image in images]
+
+@api_router.delete("/uploaded-images/{image_id}")
+async def delete_uploaded_image(image_id: str):
+    try:
+        # Find image record
+        image_record = await db.uploaded_images.find_one({"id": image_id})
+        if not image_record:
+            raise HTTPException(status_code=404, detail="Изображение не найдено")
+        
+        # Delete file from filesystem
+        file_path = UPLOADS_DIR / image_record["filename"]
+        if file_path.exists():
+            file_path.unlink()
+        
+        # Delete from database
+        result = await db.uploaded_images.delete_one({"id": image_id})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Изображение не найдено")
+        
+        return {"message": "Изображение удалено успешно"}
+        
+    except Exception as e:
+        logging.error(f"Error deleting image: {e}")
+        raise HTTPException(status_code=500, detail=f"Ошибка удаления: {str(e)}")
 
 # Services Endpoints
 @api_router.get("/services", response_model=List[Service])
