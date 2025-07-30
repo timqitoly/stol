@@ -4,26 +4,12 @@ from typing import List, Optional
 from datetime import datetime
 import uuid
 from database import Base
-import os
 
-# Check if we're using PostgreSQL or SQLite
-DATABASE_URL = os.environ.get("DATABASE_URL", "")
-IS_POSTGRESQL = DATABASE_URL.startswith("postgresql")
-
-# Import UUID only for PostgreSQL
-if IS_POSTGRESQL:
-    from sqlalchemy.dialects.postgresql import UUID
-    UUID_TYPE = UUID(as_uuid=True)
-    UUID_DEFAULT = uuid.uuid4
-else:
-    UUID_TYPE = String(36)
-    UUID_DEFAULT = lambda: str(uuid.uuid4())
-
-# SQLAlchemy Models for PostgreSQL/SQLite
+# SQLAlchemy Models - Using String IDs for compatibility
 class ServiceTable(Base):
     __tablename__ = "services"
     
-    id = Column(UUID_TYPE, primary_key=True, default=UUID_DEFAULT)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=False)
     detailed_description = Column(Text, nullable=False)
@@ -35,7 +21,7 @@ class ServiceTable(Base):
 class PortfolioTable(Base):
     __tablename__ = "portfolio"
     
-    id = Column(UUID_TYPE, primary_key=True, default=UUID_DEFAULT)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     title = Column(String(255), nullable=False)
     image = Column(Text, nullable=False)
     category = Column(String(100), nullable=False)
@@ -45,7 +31,7 @@ class PortfolioTable(Base):
 class ContactsTable(Base):
     __tablename__ = "contacts"
     
-    id = Column(UUID_TYPE, primary_key=True, default=UUID_DEFAULT)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(255), nullable=False)
     tagline = Column(String(500), nullable=False)
     phone = Column(String(50), nullable=False)
@@ -56,7 +42,7 @@ class ContactsTable(Base):
 class UploadedImagesTable(Base):
     __tablename__ = "uploaded_images"
     
-    id = Column(UUID_TYPE, primary_key=True, default=UUID_DEFAULT)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     filename = Column(String(255), nullable=False)
     original_filename = Column(String(255), nullable=False)
     url = Column(Text, nullable=False)
