@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
-import { Eye } from 'lucide-react';
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Info } from 'lucide-react';
 
 const ServicesSection = ({ services }) => {
   const [selectedService, setSelectedService] = useState(null);
@@ -48,15 +48,20 @@ const ServicesSection = ({ services }) => {
                         className="w-full border-amber-600 text-amber-700 hover:bg-amber-50"
                         onClick={() => setSelectedService(service)}
                       >
-                        <Eye className="w-4 h-4 mr-2" />
-                        Посмотреть фото
+                        <Info className="w-4 h-4 mr-2" />
+                        Подробнее
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-4xl">
                       {selectedService && (
                         <div>
-                          <h3 className="text-2xl font-bold text-amber-900 mb-4">{selectedService.name}</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <DialogHeader>
+                            <DialogTitle className="text-2xl font-bold text-amber-900 mb-4">
+                              {selectedService.name}
+                            </DialogTitle>
+                          </DialogHeader>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             {selectedService.images.map((image, index) => (
                               <img 
                                 key={index}
@@ -66,8 +71,20 @@ const ServicesSection = ({ services }) => {
                               />
                             ))}
                           </div>
-                          <p className="mt-4 text-gray-700">{selectedService.description}</p>
-                          <div className="mt-4 text-center">
+                          
+                          <div className="space-y-4">
+                            <div>
+                              <h4 className="text-lg font-semibold text-amber-900 mb-2">Краткое описание:</h4>
+                              <p className="text-gray-700">{selectedService.description}</p>
+                            </div>
+                            
+                            <div>
+                              <h4 className="text-lg font-semibold text-amber-900 mb-2">Подробная информация:</h4>
+                              <p className="text-gray-700 leading-relaxed">{selectedService.detailedDescription}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="mt-6 text-center">
                             <Badge className="bg-amber-600 text-white text-lg px-4 py-2">
                               {selectedService.price}
                             </Badge>
