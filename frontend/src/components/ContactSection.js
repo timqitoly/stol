@@ -5,7 +5,7 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Phone, Mail, MessageCircle, Send } from 'lucide-react';
-import { useToast } from "../hooks/use-toast";
+import { useToast } from "../../hooks/use-toast";
 
 const ContactSection = () => {
   const [formData, setFormData] = useState({
