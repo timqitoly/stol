@@ -45,7 +45,7 @@ class PortfolioTable(Base):
 class ContactsTable(Base):
     __tablename__ = "contacts"
     
-    id = Column(UUID_TYPE, primary_key=True, default=lambda: str(uuid.uuid4()) if not IS_POSTGRESQL else uuid.uuid4)
+    id = Column(UUID_TYPE, primary_key=True, default=UUID_DEFAULT)
     name = Column(String(255), nullable=False)
     tagline = Column(String(500), nullable=False)
     phone = Column(String(50), nullable=False)
