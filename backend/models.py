@@ -56,7 +56,7 @@ class ContactsTable(Base):
 class UploadedImagesTable(Base):
     __tablename__ = "uploaded_images"
     
-    id = Column(UUID_TYPE, primary_key=True, default=lambda: str(uuid.uuid4()) if not IS_POSTGRESQL else uuid.uuid4)
+    id = Column(UUID_TYPE, primary_key=True, default=UUID_DEFAULT)
     filename = Column(String(255), nullable=False)
     original_filename = Column(String(255), nullable=False)
     url = Column(Text, nullable=False)
