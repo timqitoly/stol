@@ -293,7 +293,7 @@ async def delete_uploaded_image(image_id: str, session: AsyncSession = Depends(g
     try:
         # Find image record
         result = await session.execute(
-            select(UploadedImagesTable).where(UploadedImagesTable.id == uuid.UUID(image_id))
+            select(UploadedImagesTable).where(UploadedImagesTable.id == image_id)
         )
         image_record = result.scalar_one_or_none()
         
@@ -307,7 +307,7 @@ async def delete_uploaded_image(image_id: str, session: AsyncSession = Depends(g
         
         # Delete from database
         await session.execute(
-            delete(UploadedImagesTable).where(UploadedImagesTable.id == uuid.UUID(image_id))
+            delete(UploadedImagesTable).where(UploadedImagesTable.id == image_id)
         )
         await session.commit()
         
