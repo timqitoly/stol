@@ -14,7 +14,7 @@ import uuid
 from PIL import Image
 
 # Import database and models
-from database import engine, Base, get_db_session
+from database import engine, Base, get_db_session, async_session_maker
 from models import (
     # SQLAlchemy models
     ServiceTable, PortfolioTable, ContactsTable, UploadedImagesTable,
