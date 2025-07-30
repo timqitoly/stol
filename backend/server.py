@@ -409,41 +409,51 @@ async def create_portfolio(portfolio_item: PortfolioCreate, session: AsyncSessio
 
 @api_router.put("/portfolio/{portfolio_id}", response_model=Portfolio)
 async def update_portfolio(portfolio_id: str, portfolio_item: PortfolioUpdate, session: AsyncSession = Depends(get_db_session)):
-    # Update portfolio
-    stmt = (
-        update(PortfolioTable)
-        .where(PortfolioTable.id == portfolio_id)
-        .values(
-            title=portfolio_item.title,
-            image=portfolio_item.image,
-            category=portfolio_item.category,
-            updated_at=datetime.utcnow()
+    try:
+        # Update portfolio
+        stmt = (
+            update(PortfolioTable)
+            .where(PortfolioTable.id == portfolio_id)
+            .values(
+                title=portfolio_item.title,
+                image=portfolio_item.image,
+                category=portfolio_item.category,
+                updated_at=datetime.utcnow()
+            )
         )
-    )
-    result = await session.execute(stmt)
+        result = await session.execute(stmt)
+        
+        if result.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Portfolio item not found")
+        
+        await session.commit()
+        
+        # Fetch updated portfolio
+        result = await session.execute(
+            select(PortfolioTable).where(PortfolioTable.id == portfolio_id)
+        )
+        updated_portfolio = result.scalar_one()
+        return convert_portfolio_to_pydantic(updated_portfolio)
     
-    if result.rowcount == 0:
-        raise HTTPException(status_code=404, detail="Portfolio item not found")
-    
-    await session.commit()
-    
-    # Fetch updated portfolio
-    result = await session.execute(
-        select(PortfolioTable).where(PortfolioTable.id == portfolio_id)
-    )
-    updated_portfolio = result.scalar_one()
-    return convert_portfolio_to_pydantic(updated_portfolio)
+    except Exception as e:
+        logging.error(f"Error updating portfolio: {e}")
+        raise HTTPException(status_code=500, detail=f"Error updating portfolio: {str(e)}")
 
 @api_router.delete("/portfolio/{portfolio_id}")
 async def delete_portfolio(portfolio_id: str, session: AsyncSession = Depends(get_db_session)):
-    stmt = delete(PortfolioTable).where(PortfolioTable.id == portfolio_id)
-    result = await session.execute(stmt)
+    try:
+        stmt = delete(PortfolioTable).where(PortfolioTable.id == portfolio_id)
+        result = await session.execute(stmt)
+        
+        if result.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Portfolio item not found")
+        
+        await session.commit()
+        return {"message": "Portfolio item deleted successfully"}
     
-    if result.rowcount == 0:
-        raise HTTPException(status_code=404, detail="Portfolio item not found")
-    
-    await session.commit()
-    return {"message": "Portfolio item deleted successfully"}
+    except Exception as e:
+        logging.error(f"Error deleting portfolio: {e}")
+        raise HTTPException(status_code=500, detail=f"Error deleting portfolio: {str(e)}")
 
 # Contacts Endpoints
 @api_router.get("/contacts", response_model=Contacts)
