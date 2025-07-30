@@ -340,43 +340,53 @@ async def create_service(service: ServiceCreate, session: AsyncSession = Depends
 
 @api_router.put("/services/{service_id}", response_model=Service)
 async def update_service(service_id: str, service: ServiceUpdate, session: AsyncSession = Depends(get_db_session)):
-    # Update service
-    stmt = (
-        update(ServiceTable)
-        .where(ServiceTable.id == service_id)
-        .values(
-            name=service.name,
-            description=service.description,
-            detailed_description=service.detailedDescription,
-            price=service.price,
-            images=service.images,
-            updated_at=datetime.utcnow()
+    try:
+        # Update service
+        stmt = (
+            update(ServiceTable)
+            .where(ServiceTable.id == service_id)
+            .values(
+                name=service.name,
+                description=service.description,
+                detailed_description=service.detailedDescription,
+                price=service.price,
+                images=service.images,
+                updated_at=datetime.utcnow()
+            )
         )
-    )
-    result = await session.execute(stmt)
+        result = await session.execute(stmt)
+        
+        if result.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Service not found")
+        
+        await session.commit()
+        
+        # Fetch updated service
+        result = await session.execute(
+            select(ServiceTable).where(ServiceTable.id == service_id)
+        )
+        updated_service = result.scalar_one()
+        return convert_service_to_pydantic(updated_service)
     
-    if result.rowcount == 0:
-        raise HTTPException(status_code=404, detail="Service not found")
-    
-    await session.commit()
-    
-    # Fetch updated service
-    result = await session.execute(
-        select(ServiceTable).where(ServiceTable.id == service_id)
-    )
-    updated_service = result.scalar_one()
-    return convert_service_to_pydantic(updated_service)
+    except Exception as e:
+        logging.error(f"Error updating service: {e}")
+        raise HTTPException(status_code=500, detail=f"Error updating service: {str(e)}")
 
 @api_router.delete("/services/{service_id}")
 async def delete_service(service_id: str, session: AsyncSession = Depends(get_db_session)):
-    stmt = delete(ServiceTable).where(ServiceTable.id == service_id)
-    result = await session.execute(stmt)
+    try:
+        stmt = delete(ServiceTable).where(ServiceTable.id == service_id)
+        result = await session.execute(stmt)
+        
+        if result.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Service not found")
+        
+        await session.commit()
+        return {"message": "Service deleted successfully"}
     
-    if result.rowcount == 0:
-        raise HTTPException(status_code=404, detail="Service not found")
-    
-    await session.commit()
-    return {"message": "Service deleted successfully"}
+    except Exception as e:
+        logging.error(f"Error deleting service: {e}")
+        raise HTTPException(status_code=500, detail=f"Error deleting service: {str(e)}")
 
 # Portfolio Endpoints
 @api_router.get("/portfolio", response_model=List[Portfolio])
