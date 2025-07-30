@@ -71,3 +71,20 @@ class AdminLogin(BaseModel):
 class AdminResponse(BaseModel):
     success: bool
     message: str
+
+# Upload Models
+class UploadedImage(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    filename: str
+    original_filename: str
+    url: str
+    size: int
+    createdAt: datetime = Field(default_factory=datetime.utcnow)
+
+    class Config:
+        from_attributes = True
+
+class ImageUploadResponse(BaseModel):
+    success: bool
+    message: str
+    image: Optional[UploadedImage] = None
