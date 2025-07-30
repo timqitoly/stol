@@ -35,7 +35,7 @@ class ServiceTable(Base):
 class PortfolioTable(Base):
     __tablename__ = "portfolio"
     
-    id = Column(UUID_TYPE, primary_key=True, default=lambda: str(uuid.uuid4()) if not IS_POSTGRESQL else uuid.uuid4)
+    id = Column(UUID_TYPE, primary_key=True, default=UUID_DEFAULT)
     title = Column(String(255), nullable=False)
     image = Column(Text, nullable=False)
     category = Column(String(100), nullable=False)
