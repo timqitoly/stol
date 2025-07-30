@@ -101,3 +101,98 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Нужно перенести базу данных в supabase, содержимое можно не переносить. .env я заполню сам потом"
+
+backend:
+  - task: "Install Supabase/PostgreSQL dependencies"
+    implemented: false
+    working: "NA"
+    file: "requirements.txt"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Need to replace MongoDB dependencies with PostgreSQL ones"
+
+  - task: "Create SQLAlchemy models for PostgreSQL"
+    implemented: false
+    working: "NA"  
+    file: "models.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Convert Pydantic models to SQLAlchemy models for PostgreSQL"
+
+  - task: "Update database connection to Supabase PostgreSQL"
+    implemented: false
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Replace MongoDB connection with PostgreSQL connection"
+
+  - task: "Migrate API endpoints to use PostgreSQL queries"
+    implemented: false
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high" 
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Replace all MongoDB queries with SQLAlchemy ORM queries"
+
+  - task: "Update environment variables for Supabase"
+    implemented: false
+    working: "NA"
+    file: ".env"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Prepare .env structure for Supabase credentials"
+
+frontend:
+  - task: "No frontend changes needed"
+    implemented: true
+    working: true
+    file: "N/A"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "Frontend will continue using same API endpoints"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 0
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Install Supabase/PostgreSQL dependencies"
+    - "Create SQLAlchemy models for PostgreSQL"
+    - "Update database connection to Supabase PostgreSQL"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+    - agent: "main"
+      message: "Starting migration from MongoDB to Supabase PostgreSQL. Will use SQLAlchemy + asyncpg for optimal performance."
