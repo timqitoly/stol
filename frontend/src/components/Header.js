@@ -1,9 +1,8 @@
 import React from 'react';
-import { mockData } from '../mock';
 import { Button } from "./ui/button";
 import { Phone } from 'lucide-react';
 
-const Header = () => {
+const Header = ({ contacts }) => {
   const scrollToContacts = () => {
     document.getElementById('contacts').scrollIntoView({ behavior: 'smooth' });
   };
@@ -17,8 +16,8 @@ const Header = () => {
               <span className="text-2xl font-bold text-amber-900">КТ</span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-amber-100">{mockData.company.name}</h1>
-              <p className="text-amber-200 text-sm">{mockData.company.tagline}</p>
+              <h1 className="text-2xl font-bold text-amber-100">{contacts.name}</h1>
+              <p className="text-amber-200 text-sm">{contacts.tagline}</p>
             </div>
           </div>
           

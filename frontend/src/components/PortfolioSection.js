@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { mockData } from '../mock';
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { Badge } from "./ui/badge";
 
-const PortfolioSection = () => {
+const PortfolioSection = ({ portfolio }) => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   return (
@@ -17,7 +16,7 @@ const PortfolioSection = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockData.portfolio.map((item) => (
+            {portfolio.map((item) => (
               <Dialog key={item.id}>
                 <DialogTrigger asChild>
                   <div 

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { mockData } from '../mock';
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
@@ -7,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Phone, Mail, MessageCircle, Send } from 'lucide-react';
 import { useToast } from "../hooks/use-toast";
 
-const ContactSection = () => {
+const ContactSection = ({ contacts }) => {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -34,7 +33,7 @@ const ContactSection = () => {
 
   const openWhatsApp = () => {
     const message = encodeURIComponent("Здравствуйте! Интересует ваша услуга по деревянной отделке.");
-    window.open(`https://wa.me/${mockData.company.whatsapp}?text=${message}`, '_blank');
+    window.open(`https://wa.me/${contacts.whatsapp}?text=${message}`, '_blank');
   };
 
   return (
@@ -108,8 +107,8 @@ const ContactSection = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-amber-900">Телефон</h3>
-                      <a href={`tel:${mockData.company.phone}`} className="text-gray-600 hover:text-amber-700">
-                        {mockData.company.phone}
+                      <a href={`tel:${contacts.phone}`} className="text-gray-600 hover:text-amber-700">
+                        {contacts.phone}
                       </a>
                     </div>
                   </div>
@@ -124,8 +123,8 @@ const ContactSection = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-amber-900">Email</h3>
-                      <a href={`mailto:${mockData.company.email}`} className="text-gray-600 hover:text-amber-700">
-                        {mockData.company.email}
+                      <a href={`mailto:${contacts.email}`} className="text-gray-600 hover:text-amber-700">
+                        {contacts.email}
                       </a>
                     </div>
                   </div>
