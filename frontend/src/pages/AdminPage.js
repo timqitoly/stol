@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { useToast } from "../hooks/use-toast";
-import { Edit, Save, Trash2, Plus, LogOut, Eye, Phone, Mail, Loader } from 'lucide-react';
+import { Edit, Save, Trash2, Plus, LogOut, Eye, Phone, Mail, Loader, Image as ImageIcon } from 'lucide-react';
 import { servicesAPI, portfolioAPI, contactsAPI, adminAPI, handleAPIError } from '../services/api';
+import ImageManager from '../components/ImageManager';
 
 const AdminPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -23,7 +24,7 @@ const AdminPage = () => {
     description: '',
     detailedDescription: '',
     price: '',
-    images: ['']
+    images: []
   });
   const [newPortfolioItem, setNewPortfolioItem] = useState({
     title: '',
@@ -141,7 +142,7 @@ const AdminPage = () => {
     try {
       await servicesAPI.create(newService);
       await fetchData();
-      setNewService({ name: '', description: '', detailedDescription: '', price: '', images: [''] });
+      setNewService({ name: '', description: '', detailedDescription: '', price: '', images: [] });
       toast({
         title: "Услуга добавлена",
         description: "Новая услуга была добавлена успешно!",
@@ -235,6 +236,27 @@ const AdminPage = () => {
     }
   };
 
+  // Image selection handlers
+  const handleServiceImagesSelect = (images, isEditing = false) => {
+    const imageUrls = images.map(img => img.url);
+    if (isEditing) {
+      setEditingService({ ...editingService, images: imageUrls });
+    } else {
+      setNewService({ ...newService, images: imageUrls });
+    }
+  };
+
+  const handlePortfolioImageSelect = (images, isEditing = false) => {
+    if (images.length > 0) {
+      const imageUrl = images[0].url;
+      if (isEditing) {
+        setEditingPortfolio({ ...editingPortfolio, image: imageUrl });
+      } else {
+        setNewPortfolioItem({ ...newPortfolioItem, image: imageUrl });
+      }
+    }
+  };
+
   // Check auth status on mount
   useEffect(() => {
     const authStatus = localStorage.getItem('isAdminAuthenticated');
@@ -265,7 +287,7 @@ const AdminPage = () => {
                 type="password"
                 placeholder="Пароль"
                 value={loginData.password}
-                onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+                onChange={(e) => setLoginData({...loginData, password: e.target.value})}  
                 className="border-amber-200 focus:border-amber-500"
                 disabled={loading}
               />
@@ -306,10 +328,11 @@ const AdminPage = () => {
         </div>
 
         <Tabs defaultValue="services" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="services">Услуги</TabsTrigger>
             <TabsTrigger value="portfolio">Наши работы</TabsTrigger>
             <TabsTrigger value="contacts">Контакты</TabsTrigger>
+            <TabsTrigger value="images">Изображения</TabsTrigger>
           </TabsList>
 
           {/* Services Tab */}
@@ -350,11 +373,21 @@ const AdminPage = () => {
                         value={newService.price}
                         onChange={(e) => setNewService({...newService, price: e.target.value})}
                       />
-                      <Input
-                        placeholder="URL изображения"
-                        value={newService.images[0] || ''}
-                        onChange={(e) => setNewService({...newService, images: [e.target.value]})}
-                      />
+                      <div>
+                        <label className="block text-sm font-medium text-amber-900 mb-2">
+                          Изображения ({newService.images.length} выбрано)
+                        </label>
+                        <ImageManager
+                          mode="multiple"
+                          onImageSelect={(images) => handleServiceImagesSelect(images, false)}
+                          trigger={
+                            <Button variant="outline" className="w-full border-amber-600 text-amber-700 hover:bg-amber-50">
+                              <ImageIcon className="w-4 h-4 mr-2" />
+                              Выбрать изображения
+                            </Button>
+                          }
+                        />
+                      </div>
                       <Button onClick={handleAddService} className="w-full">
                         Добавить услугу
                       </Button>
@@ -377,6 +410,23 @@ const AdminPage = () => {
                             <h3 className="font-semibold text-lg text-amber-900">{service.name}</h3>
                             <p className="text-gray-600 mt-1">{service.description}</p>
                             <p className="font-semibold text-amber-700 mt-2">{service.price}</p>
+                            {service.images && service.images.length > 0 && (
+                              <div className="flex space-x-2 mt-2">
+                                {service.images.slice(0, 3).map((image, idx) => (
+                                  <img 
+                                    key={idx}
+                                    src={image} 
+                                    alt={`${service.name} ${idx + 1}`}
+                                    className="w-12 h-12 object-cover rounded border border-amber-200"
+                                  />
+                                ))}
+                                {service.images.length > 3 && (
+                                  <div className="w-12 h-12 bg-amber-100 rounded border border-amber-200 flex items-center justify-center text-xs text-amber-700">
+                                    +{service.images.length - 3}
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                           <div className="flex space-x-2 ml-4">
                             <Dialog>
@@ -413,6 +463,21 @@ const AdminPage = () => {
                                       value={editingService.price}
                                       onChange={(e) => setEditingService({...editingService, price: e.target.value})}
                                     />
+                                    <div>
+                                      <label className="block text-sm font-medium text-amber-900 mb-2">
+                                        Изображения ({editingService.images.length} выбрано)
+                                      </label>
+                                      <ImageManager
+                                        mode="multiple"
+                                        onImageSelect={(images) => handleServiceImagesSelect(images, true)}
+                                        trigger={
+                                          <Button variant="outline" className="w-full border-amber-600 text-amber-700 hover:bg-amber-50">
+                                            <ImageIcon className="w-4 h-4 mr-2" />
+                                            Выбрать изображения
+                                          </Button>
+                                        }
+                                      />
+                                    </div>
                                     <Button onClick={handleSaveService} className="w-full">
                                       <Save className="w-4 h-4 mr-2" />
                                       Сохранить изменения
@@ -466,11 +531,30 @@ const AdminPage = () => {
                         value={newPortfolioItem.category}
                         onChange={(e) => setNewPortfolioItem({...newPortfolioItem, category: e.target.value})}
                       />
-                      <Input
-                        placeholder="URL изображения"
-                        value={newPortfolioItem.image}
-                        onChange={(e) => setNewPortfolioItem({...newPortfolioItem, image: e.target.value})}
-                      />
+                      <div>
+                        <label className="block text-sm font-medium text-amber-900 mb-2">
+                          Изображение
+                        </label>
+                        <ImageManager
+                          mode="single"
+                          onImageSelect={(images) => handlePortfolioImageSelect(images, false)}
+                          trigger={
+                            <Button variant="outline" className="w-full border-amber-600 text-amber-700 hover:bg-amber-50">
+                              <ImageIcon className="w-4 h-4 mr-2" />
+                              Выбрать изображение
+                            </Button>
+                          }
+                        />
+                        {newPortfolioItem.image && (
+                          <div className="mt-2">
+                            <img 
+                              src={newPortfolioItem.image} 
+                              alt="Preview"
+                              className="w-24 h-24 object-cover rounded border border-amber-200"
+                            />
+                          </div>
+                        )}
+                      </div>
                       <Button onClick={handleAddPortfolio} className="w-full">
                         Добавить работу
                       </Button>
@@ -520,10 +604,30 @@ const AdminPage = () => {
                                     value={editingPortfolio.category}
                                     onChange={(e) => setEditingPortfolio({...editingPortfolio, category: e.target.value})}
                                   />
-                                  <Input
-                                    value={editingPortfolio.image}
-                                    onChange={(e) => setEditingPortfolio({...editingPortfolio, image: e.target.value})}
-                                  />
+                                  <div>
+                                    <label className="block text-sm font-medium text-amber-900 mb-2">
+                                      Изображение
+                                    </label>
+                                    <ImageManager
+                                      mode="single"
+                                      onImageSelect={(images) => handlePortfolioImageSelect(images, true)}
+                                      trigger={
+                                        <Button variant="outline" className="w-full border-amber-600 text-amber-700 hover:bg-amber-50">
+                                          <ImageIcon className="w-4 h-4 mr-2" />
+                                          Выбрать изображение
+                                        </Button>
+                                      }
+                                    />
+                                    {editingPortfolio.image && (
+                                      <div className="mt-2">
+                                        <img 
+                                          src={editingPortfolio.image} 
+                                          alt="Preview"
+                                          className="w-24 h-24 object-cover rounded border border-amber-200"
+                                        />
+                                      </div>
+                                    )}
+                                  </div>
                                   <Button onClick={handleSavePortfolio} className="w-full">
                                     <Save className="w-4 h-4 mr-2" />
                                     Сохранить изменения
@@ -630,6 +734,11 @@ const AdminPage = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Images Tab */}
+          <TabsContent value="images">
+            <ImageManager mode="multiple" />
           </TabsContent>
         </Tabs>
       </div>
