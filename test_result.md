@@ -195,6 +195,18 @@ backend:
           agent: "testing"
           comment: "VERIFIED: Environment variables properly structured for Supabase. DATABASE_URL placeholder ready for production credentials. Fallback to SQLite working for testing environment."
 
+  - task: "Image upload functionality and static file serving"
+    implemented: true
+    working: false
+    file: "server.py, .env"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: false
+          agent: "testing"
+          comment: "CRITICAL ISSUE IDENTIFIED: Image upload API works correctly, but static file serving is broken. Root cause: Kubernetes ingress routes /uploads to frontend instead of backend. Images stored in database but not accessible via URLs, causing gray boxes in frontend. Fixed REACT_APP_BACKEND_URL in backend .env to prevent localhost URLs. Requires infrastructure fix for /uploads routing."
+
 frontend:
   - task: "No frontend changes needed"
     implemented: true
@@ -211,12 +223,14 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 0
+  test_sequence: 1
   run_ui: false
 
 test_plan:
-  current_focus: []
-  stuck_tasks: []
+  current_focus:
+    - "Image upload functionality and static file serving"
+  stuck_tasks:
+    - "Image upload functionality and static file serving"
   test_all: false
   test_priority: "high_first"
 
@@ -227,3 +241,5 @@ agent_communication:
       message: "Migration completed successfully! All MongoDB code replaced with PostgreSQL/SQLAlchemy. Key changes: 1) New database.py with async connection, 2) SQLAlchemy table models + Pydantic API models, 3) All CRUD operations updated, 4) Proper UUID handling, 5) .env prepared for Supabase credentials. Ready for testing once user provides DATABASE_URL."
     - agent: "testing"
       message: "COMPREHENSIVE TESTING COMPLETED - 100% SUCCESS RATE! All backend functionality verified working correctly. Key findings: 1) All CRUD operations (GET, POST, PUT, DELETE) working perfectly, 2) Previously failing PUT/DELETE operations for services and portfolio now fully functional, 3) UUID handling fixed and working correctly, 4) Error handling implemented (minor issue: returns 500 instead of 404 for non-existent resources, but core functionality unaffected), 5) Database connection and SQLAlchemy models working flawlessly, 6) Complete migration from MongoDB to PostgreSQL successful. System ready for production with real Supabase credentials."
+    - agent: "testing"
+      message: "CRITICAL IMAGE UPLOAD ISSUE IDENTIFIED: Backend API works perfectly, but Kubernetes ingress misconfiguration prevents static file serving. /uploads path routes to frontend (returns HTML) instead of backend static files. This causes images to appear as gray boxes in frontend. Fixed backend environment variable to prevent localhost URLs. Infrastructure-level fix needed for proper /uploads routing to backend static files."
