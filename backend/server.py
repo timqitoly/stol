@@ -289,6 +289,29 @@ async def get_uploaded_images(session: AsyncSession = Depends(get_db_session)):
     images = result.scalars().all()
     return [convert_uploaded_image_to_pydantic(image) for image in images]
 
+@api_router.get("/uploads/{filename}")
+async def serve_uploaded_image(filename: str):
+    """Serve uploaded images through API endpoint"""
+    file_path = UPLOADS_DIR / filename
+    
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Изображение не найдено")
+    
+    # Determine media type based on file extension
+    file_extension = filename.lower().split('.')[-1]
+    media_type_map = {
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg', 
+        'png': 'image/png',
+        'gif': 'image/gif',
+        'webp': 'image/webp',
+        'bmp': 'image/bmp',
+        'svg': 'image/svg+xml'
+    }
+    media_type = media_type_map.get(file_extension, 'application/octet-stream')
+    
+    return FileResponse(file_path, media_type=media_type, filename=filename)
+
 @api_router.delete("/uploaded-images/{image_id}")
 async def delete_uploaded_image(image_id: str, session: AsyncSession = Depends(get_db_session)):
     try:
