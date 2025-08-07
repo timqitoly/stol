@@ -307,7 +307,7 @@ class BackendTester:
         return all_passed
     
     def test_image_endpoints(self) -> bool:
-        """Test image upload endpoints (without actual file upload)"""
+        """Test image upload endpoints and static file serving"""
         all_passed = True
         
         # Test GET uploaded images
@@ -317,8 +317,10 @@ class BackendTester:
                 images = response.json()
                 if isinstance(images, list):
                     self.log_test("GET Uploaded Images", True, f"Retrieved {len(images)} uploaded images")
-                    # Verify image structure if any exist
+                    
+                    # Test static file serving for existing images
                     if images:
+                        # Verify image structure
                         image = images[0]
                         required_fields = ['id', 'filename', 'original_filename', 'url', 'size', 'createdAt']
                         missing_fields = [field for field in required_fields if field not in image]
@@ -327,6 +329,11 @@ class BackendTester:
                             all_passed = False
                         else:
                             self.log_test("Image Structure", True, "All required fields present")
+                            
+                            # Test direct image URL access
+                            self.test_image_url_access(images)
+                    else:
+                        self.log_test("Image URL Access", True, "No images to test URL access")
                 else:
                     self.log_test("GET Uploaded Images", False, "Response is not a list", str(images))
                     all_passed = False
@@ -337,7 +344,90 @@ class BackendTester:
             self.log_test("GET Uploaded Images", False, "Request failed", str(e))
             all_passed = False
         
+        # Test image upload with a small test image
+        upload_success = self.test_image_upload()
+        if not upload_success:
+            all_passed = False
+        
         return all_passed
+    
+    def test_image_url_access(self, images: List[Dict[str, Any]]):
+        """Test direct access to uploaded image URLs"""
+        for i, image in enumerate(images[:3]):  # Test first 3 images only
+            try:
+                image_url = image['url']
+                self.log_test("Image URL Format", True, f"Image {i+1} URL: {image_url}")
+                
+                # Test direct HTTP access to the image
+                response = self.session.get(image_url, timeout=10)
+                if response.status_code == 200:
+                    # Check if it's actually an image by content type
+                    content_type = response.headers.get('content-type', '')
+                    if content_type.startswith('image/'):
+                        self.log_test(f"Image Access {i+1}", True, f"Image accessible at {image_url}")
+                    else:
+                        self.log_test(f"Image Access {i+1}", False, f"URL returns non-image content: {content_type}")
+                elif response.status_code == 404:
+                    self.log_test(f"Image Access {i+1}", False, f"Image not found at {image_url}")
+                else:
+                    self.log_test(f"Image Access {i+1}", False, f"HTTP {response.status_code} for {image_url}")
+            except Exception as e:
+                self.log_test(f"Image Access {i+1}", False, f"Failed to access {image_url}", str(e))
+    
+    def test_image_upload(self) -> bool:
+        """Test actual image upload functionality"""
+        try:
+            # Create a small test image (1x1 pixel PNG)
+            import io
+            from PIL import Image
+            
+            # Create a small test image
+            test_image = Image.new('RGB', (1, 1), color='red')
+            img_buffer = io.BytesIO()
+            test_image.save(img_buffer, format='PNG')
+            img_buffer.seek(0)
+            
+            # Prepare multipart form data
+            files = {
+                'file': ('test_image.png', img_buffer, 'image/png')
+            }
+            
+            # Upload the image
+            response = self.session.post(f"{self.base_url}/upload-image", files=files)
+            
+            if response.status_code == 200:
+                result = response.json()
+                if result.get('success'):
+                    uploaded_image = result.get('image')
+                    if uploaded_image and 'url' in uploaded_image:
+                        self.created_resources['images'].append(uploaded_image['id'])
+                        self.log_test("Image Upload", True, f"Successfully uploaded test image")
+                        
+                        # Test immediate access to uploaded image
+                        image_url = uploaded_image['url']
+                        access_response = self.session.get(image_url, timeout=10)
+                        if access_response.status_code == 200:
+                            self.log_test("Uploaded Image Access", True, f"Uploaded image immediately accessible")
+                        else:
+                            self.log_test("Uploaded Image Access", False, f"Uploaded image not accessible: HTTP {access_response.status_code}")
+                        
+                        return True
+                    else:
+                        self.log_test("Image Upload", False, "Upload successful but no image URL returned", str(result))
+                        return False
+                else:
+                    self.log_test("Image Upload", False, f"Upload failed: {result.get('message', 'Unknown error')}")
+                    return False
+            else:
+                self.log_test("Image Upload", False, f"HTTP {response.status_code}", response.text[:200])
+                return False
+                
+        except ImportError:
+            self.log_test("Image Upload", False, "PIL not available for test image creation")
+            return False
+        except Exception as e:
+            self.log_test("Image Upload", False, "Upload test failed", str(e))
+            return False
     
     def cleanup_test_data(self):
         """Clean up created test data"""
