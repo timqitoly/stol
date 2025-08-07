@@ -104,6 +104,24 @@
 
 user_problem_statement: "не работает загрузка фотографий в админ панели - ИСПРАВЛЕНО: Проблема была в маршрутизации Kubernetes ingress. Создан API endpoint /api/uploads/{filename} для обхода проблемы."
 
+  - task: "Fix image upload display issue in admin panel"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: false
+          agent: "main"
+          comment: "User reported images appearing as gray boxes in admin panel gallery"
+        - working: true
+          agent: "main" 
+          comment: "FIXED: Root cause was Kubernetes ingress routing /uploads to frontend. Created new API endpoint /api/uploads/{filename} to serve images through backend API, bypassing ingress issue. Updated URL generation to use /api/uploads/ prefix."
+        - working: true
+          agent: "testing"
+          comment: "VERIFIED: Fix working perfectly! Images now display correctly in admin panel. New API endpoint serves images with proper content-type headers. All functionality restored."
+
 backend:
   - task: "Install Supabase/PostgreSQL dependencies"
     implemented: true
