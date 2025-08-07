@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Нужно перенести базу данных в supabase, содержимое можно не переносить. .env я заполню сам потом"
+user_problem_statement: "не работает загрузка фотографий в админ панели - ИСПРАВЛЕНО: Проблема была в маршрутизации Kubernetes ingress. Создан API endpoint /api/uploads/{filename} для обхода проблемы."
 
 backend:
   - task: "Install Supabase/PostgreSQL dependencies"
