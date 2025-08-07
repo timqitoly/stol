@@ -255,7 +255,7 @@ async def upload_image(file: UploadFile = File(...), session: AsyncSession = Dep
         
         # Create image record
         base_url = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:8001')
-        image_url = f"{base_url}/uploads/{unique_filename}"
+        image_url = f"{base_url}/api/uploads/{unique_filename}"
         
         image_record = UploadedImagesTable(
             filename=unique_filename,
