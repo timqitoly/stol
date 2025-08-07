@@ -6,7 +6,7 @@ Specific test for DELETE operations that were previously failing
 import requests
 import json
 
-BACKEND_URL = "https://dc964688-dfe4-4242-ba62-2f91ff1da1bf.preview.emergentagent.com/api"
+BACKEND_URL = "https://c393639a-fa64-415c-a2dd-ed9a85a0a9dc.preview.emergentagent.com/api"
 
 def test_delete_operations():
     """Test DELETE operations specifically"""

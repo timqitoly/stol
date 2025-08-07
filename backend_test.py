@@ -19,7 +19,7 @@ backend_path = Path(__file__).parent / "backend"
 sys.path.insert(0, str(backend_path))
 
 # Test configuration
-BACKEND_URL = "https://dc964688-dfe4-4242-ba62-2f91ff1da1bf.preview.emergentagent.com/api"
+BACKEND_URL = "https://c393639a-fa64-415c-a2dd-ed9a85a0a9dc.preview.emergentagent.com/api"
 TEST_TIMEOUT = 30
 
 class BackendTester:
