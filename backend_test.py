@@ -454,6 +454,17 @@ class BackendTester:
                     print(f"⚠️ Failed to delete portfolio item {portfolio_id}: HTTP {response.status_code}")
             except Exception as e:
                 print(f"⚠️ Error deleting portfolio item {portfolio_id}: {e}")
+        
+        # Delete created images
+        for image_id in self.created_resources['images']:
+            try:
+                response = self.session.delete(f"{self.base_url}/uploaded-images/{image_id}")
+                if response.status_code == 200:
+                    print(f"✅ Deleted test image: {image_id}")
+                else:
+                    print(f"⚠️ Failed to delete image {image_id}: HTTP {response.status_code}")
+            except Exception as e:
+                print(f"⚠️ Error deleting image {image_id}: {e}")
     
     def run_all_tests(self) -> bool:
         """Run all backend tests"""
